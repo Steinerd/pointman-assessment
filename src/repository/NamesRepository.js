@@ -1,5 +1,6 @@
 import Repository from "./ApiRepository";
 import Person from "../models/Person";
+import ResponseStruct from "../models/ResponseStruct";
 
 const resource = "/people";
 
@@ -9,6 +10,7 @@ export default {
    * @param {number} id
    * @returns {Array<Person>}
    * @async
+   * @public
    */
   async get(id) {
     /** @type {AxiosResponse}*/
@@ -23,24 +25,51 @@ export default {
 
     await this._checkStatus(response);
 
-    return response.data.sort((a, b) => (a.id > b.id ? 1 : -1));
+    return Person.fromArray(response.data).sort((a, b) =>
+      a.id > b.id ? 1 : -1
+    );
   },
 
   /**
    * Updates/inserts new person in the API service.
    * @param {Person} person
-   * @returns {boolean}
+   * @returns {ResponseStruct}
+   * @public
    */
   async set(person) {
     let response;
     if (person.id && person.id > -1) {
-      response = Repository.put(`${resource}/${person.id}`, person);
+      response = await Repository.put(`${resource}/${person.id}`, person);
     } else {
-      response = Repository.post(`${resource}`, person);
+      response = await Repository.post(`${resource}`, person);
     }
 
     await this._checkStatus(response);
+    return ResponseStruct.fromObject(response.data);
   },
+
+  /**
+   * Removes person.
+   * @param {Person} person
+   * @returns {ResponseStruct}
+   * @public
+   */
+  async remove(person) {
+    let response;
+    if (person.id && person.id > -1) {
+      response = await Repository.delete(`${resource}/${person.id}`);
+    } else {
+      return;
+    }
+    await this._checkStatus(response);
+    return ResponseStruct.fromObject(response.data);
+  },
+
+  /**
+   * Checks the response for bad statuses.
+   * @param {AxiosResponse} response
+   * @private
+   */
   async _checkStatus(response) {
     // Check the status on the response...
     if (response.status >= 200 && response.status < 300) {

@@ -6,6 +6,9 @@
 
 <script>
 import ContactsList from "./components/ContactsList";
+import $ from "jquery";
+import "bootstrap";
+import "bootstrap/dist/css/bootstrap.css";
 
 export default {
   name: "App",

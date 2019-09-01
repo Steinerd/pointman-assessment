@@ -1,47 +1,44 @@
 <template>
-  <div id="names-wrapper">
-    <h1>Contact List</h1>
-    <ul id="names">
-      <li
-        v-for="person in people"
-        :key="person.id"
-        :class="selected.id === person.id ? 'selected' : ''"
-        @click="select(person)"
-      >
-        <span>{{person.first_name}} {{person.last_name}}</span>
-      </li>
-    </ul>
-    <hr>
-    <form>
-      <fieldset id="add-new">
-        <legend>Add New Person</legend>
-        <span>
-          <label for="first_name">First Name:</label>
-          <input type="text" id="first_name" name="first_name" v-model.trim="selected.first_name">
-        </span>
-        &nbsp;&nbsp;
-        <span>
-          <label for="last_name">Last Name:</label>
-          <input type="text" id="last_name" name="last_name" v-model.trim="selected.last_name">
-        </span>
-        <div id="button-wrapper">
-          <button id="clear" name="clear" type="reset" @click="clear">Clear</button>
-          <button id="add-update" name="add-update" type="button" @click="upsert">
-            <span v-if="selected.id > -1">Update</span>
-            <span v-else>Add</span>
-          </button>
-        </div>
-      </fieldset>
-    </form>
+  <div class="container" id="names-wrapper">
+    <div class="row">
+      <h1 class="col-sm-12 text-center">Contact List</h1>
+    </div>
+    <div class="row">
+      <div class="col-sm-6">
+        <ul class="list-group-item" id="names">
+          <li
+            class="list-group-item"
+            :key="person.id"
+            :class="selected.id === person.id ? 'active' : ''"
+            @click="select(person)"
+            v-for="person in people"
+          >
+            <span>{{person.first_name}} {{person.last_name}} [Age: {{person.age}}]</span>
+          </li>
+        </ul>
+      </div>
+      <div class="col-sm-6">
+        <figure class="figure">
+          <figcaption class="figure-caption">Add/Edit Person</figcaption>
+          <ContactsForm/>
+        </figure>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import PeopleRepository from "../repository/NamesRepository";
 import Person from "../models/Person";
+import ResponseStruct from "../models/ResponseStruct";
+import ContactsForm from "./ContactsForm";
+import $ from "jquery";
 
 export default {
   name: "ContactsList",
+  components: {
+    ContactsForm
+  },
   data() {
     return {
       isLoading: false,
@@ -64,68 +61,40 @@ export default {
 
       this.people = names;
     },
-    /**
-     * Updates or interts a new person.
-     */
-    async upsert() {
-      console.log(this.selected);
-      await PeopleRepository.set(this.selected);
-    },
+
     /**
      * Selects a person from the existing list to update.
      * @param {Person} person
      */
     async select(person) {
       if (person) {
+        person.dob = this._getFormattedDate(person.dob) || person.dob;
         this.selected = person;
       }
-      console.log({ person });
     },
-    async clear() {
-      this.selected = new Person();
+    /**
+     * Format a Date object for the date inpute formatting
+     * @private
+     * @returns {string}
+     */
+    _getFormattedDate(date) {
+      var local = new Date(date);
+      local.setMinutes(local.getMinutes() - local.getTimezoneOffset());
+      return local.toJSON().slice(0, 10);
     }
   },
-  mounted() {
-    this.fetch();
+  /**
+   * Vue::mounted event.
+   */
+  async mounted() {
+    await this.fetch();
   }
 };
 </script>
 
 <style scoped>
-h1 {
-  text-align: center;
-}
-
-ul {
-  list-style: disc;
-}
-
-ul li {
-  padding: 5px;
-}
-
-ul li:hover {
-  text-decoration: underline;
+ul li:hover:not(.active) {
+  background: #f2f2f2;
   cursor: pointer;
-}
-
-ul li.selected {
-  color: blue;
-}
-
-form {
-  width: 575px;
-}
-fieldset#add-new label {
-  margin-right: 5px;
-  width: 100%;
-}
-
-#button-wrapper {
-  float: right;
-}
-#button-wrapper button {
-  margin: 10px 5px;
-  width: 50px;
 }
 </style>
