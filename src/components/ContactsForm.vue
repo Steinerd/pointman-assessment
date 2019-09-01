@@ -105,13 +105,14 @@ export default {
 
       this.isLoading = true;
       let responseMessage = await PeopleRepository.set(this.selected);
+      this.$log.debug("Response Message", responseMessage);
       this.isLoading = false;
 
       if (responseMessage.status) {
         await this.clear();
         await this.fetch();
       } else {
-        console.error({ responseMessage });
+        this.$log.error({ responseMessage });
       }
     },
 

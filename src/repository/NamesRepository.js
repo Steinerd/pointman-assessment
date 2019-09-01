@@ -73,9 +73,9 @@ export default {
   async _checkStatus(response) {
     // Check the status on the response...
     if (response.status >= 200 && response.status < 300) {
-      console.table("API Data", response.data);
+      window.$log.debug("API Data", response.data);
     } else {
-      console.error("API Error", response);
+      window.$log.error("API Error", response);
       throw new Error(response.statusText);
     }
   }
