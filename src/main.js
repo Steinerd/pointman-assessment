@@ -2,6 +2,8 @@ import Vue from "vue";
 import App from "./App.vue";
 import VueLogger from "vuejs-logger";
 
+window.process.env.NODE_ENV = "production";
+
 const isProduction = window.process.env.NODE_ENV === "production";
 const logOptions = {
   isEnabled: false,
@@ -12,9 +14,11 @@ const logOptions = {
   separator: "|",
   showConsoleColors: true
 };
-Vue.use(VueLogger, logOptions);
 
 Vue.config.productionTip = false;
+Vue.config.silent = true;
+
+Vue.use(VueLogger, logOptions);
 
 new Vue({
   render: h => h(App)

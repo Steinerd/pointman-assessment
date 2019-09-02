@@ -37,7 +37,7 @@ import $ from "jquery";
 export default {
   name: "ContactsList",
   components: {
-    ContactsForm
+    ContactsForm: ContactsForm
   },
   data() {
     return {
